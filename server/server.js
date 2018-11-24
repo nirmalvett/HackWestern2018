@@ -1,6 +1,7 @@
 const express = require('express');
-
 const app = express();
+
+const bq = require('@google-cloud/bigquery');
 
 app.get('/api/test', (req, res) => {
     const customers = [
@@ -10,6 +11,32 @@ app.get('/api/test', (req, res) => {
     ];
 
     res.json(customers);
+});
+
+app.get('/api/testbq', (req, res) => {
+    const projectId = 'bigquery-public-data:chicago_crime';
+    const bigquery = new BigQuery({
+        projectId: projectId,
+    });
+
+    const sqlQuery = `SELECT * FROM \'bigquery-public-data.chicago_crime\' WHERE unique_key=\'` + req.key + `\'`;
+    const options = {
+        query: sqlQuery,
+        useLegacySql: false, // Use standard SQL syntax for queries.
+    };
+
+    // Runs the query
+    bigquery
+        .query(options)
+        .then(results => {
+            const rows = results[0];
+            console.log(rows);
+            res.json(rows)
+        })
+        .catch(err => {
+            console.error('ERROR:', err);
+        });
+
 });
 
 const port = 5000;

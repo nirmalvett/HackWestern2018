@@ -14,6 +14,7 @@ class Test extends Component {
         fetch('/api/test')
             .then(res => res.json())
             .then(test => this.setState({test}, () => console.log('Test call completed...', test)));
+        fetch('/testbq?key=10046607')
     }
 
     render() {
