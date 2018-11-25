@@ -14,14 +14,70 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>Safe Map</title>
 
+    <form id="locations">
+        TravelSafe
+        <div class="form-group">
+            <label for="start">Starting Location</label>
+            <input type="text" class="form-control" id="start" aria-describedby="emailHelp" placeholder="Eg. 56 Western Rd, Chicago">
+        </div>
+        <div class="form-group">
+            <label for="end">Ending Location</label>
+            <input type="text" class="form-control" id="end" placeholder="Eg. 99 Epworth Drive, Chicago">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
 </head>
 <body>
 <div id="root"></div>
 
 <div id="map" style="position:absolute; width:49%; height:100%; background:grey" ></div>
 <div id="panel" style="position:absolute; width:49%; left:51%; height:100%; background:inherit" ></div>
+
+
 <style type="text/css" src="index.css"> </style>
 <script  type="text/javascript" charset="UTF-8" >
+
+
+    function geocode(platform, inputText) {
+        var geocoder = platform.getGeocodingService(),
+            geocodingParameters = {
+                searchText: inputText,
+                jsonattributes : 1
+            };
+
+        geocoder.geocode(
+            geocodingParameters,
+            onSuccessMsg,
+            onErrorMsg
+        );
+    }
+    /**
+     * This function will be called once the Geocoder REST API provides a response
+     * @param  {Object} result          A JSONP object representing the  location(s) found.
+     *
+     * see: http://developer.here.com/rest-apis/documentation/geocoder/topics/resource-type-response-geocode.html
+     */
+    function onSuccessMsg(result) {
+        var locations = result.response.view[0].result;
+        /*
+         * The styling of the geocoding response on the map is entirely under the developer's control.
+         * A representitive styling can be found the full JS + HTML code of this example
+         * in the functions below:
+         */
+        var lat = locations[0]["location"]["displayPosition"]["latitude"];
+        console.log(lat);
+        var long = locations[0]["location"]["displayPosition"]["longitude"];
+        console.log(long);
+    }
+
+    /**
+     * This function will be called if a communication error occurs during the JSON-P request
+     * @param  {Object} error  The error message received.
+     */
+    function onErrorMsg(error) {
+        alert('Ooops!');
+    }
 
     function calculateRouteFromAtoB (platform) {
         var router = platform.getRoutingService(),
@@ -321,6 +377,19 @@
 
     // Now use the map as required...
     calculateRouteFromAtoB (platform);
+
+    // function processes the form
+    function processForm(e) {
+        geocode(platform, document.getElementById("start"));
+        geocode(platform, document.getElementById("end"));
+    }
+    // checks if form is submitted
+    var form = document.getElementById('locations');
+    if (form.attachEvent) {
+        form.attachEvent("submit", processForm);
+    } else {
+        form.addEventListener("submit", processForm);
+    }
 
 </script>
 </body>
