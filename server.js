@@ -2,8 +2,9 @@ const express = require('express');
 const app = express();
 const path = require('path');
 let bodyParser     =        require("body-parser");
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use('/static', express.static('public'));
 
 const bq = require('@google-cloud/bigquery');
 
@@ -22,14 +23,13 @@ app.post('/api/nearbyCrimes', (req, res) => {
     const projectId = "hackwestern2018";
     const bigquery = new bq.BigQuery({
         projectId: projectId,
-        keyFilename: "C:\\Users\\nirmal\\Downloads\\hackwestern2018-c0ae9cd3b91b.json"
+        keyFilename: "./hackwestern2018-c0ae9cd3b91b.json"
     });
 
     const output = [];
-    console.log(req.body);
+    let count = req.body.coords.length;
 
-
-    req.coords.forEach(coord => {
+    req.body.coords.forEach(coord => {
         if (!coord.latitude || isNaN(coord.latitude)) {
             res.status(400);
             res.send("Bad latitude coordinate");
@@ -45,21 +45,26 @@ app.post('/api/nearbyCrimes', (req, res) => {
         // Create a 1km box around our latitude/longitude (0.5km radius)
         // 0.008983 = 1km latitude
         // 0.015060 = 1km longitude
-        latMin = coord.latitude - 0.0044915;
-        latMax = coord.latitude + 0.0044915;
-        lonMin = coord.longitude - 0.00753;
-        lonMax = coord.longitude + 0.00753;
+        let latMin = parseFloat(coord.latitude) - 0.0044915;
+        let latMax = parseFloat(coord.latitude) + 0.0044915;
+        let lonMin = parseFloat(coord.longitude) - 0.00753;
+        let lonMax = parseFloat(coord.longitude) + 0.00753;
 
         const sqlQuery = `SELECT COUNT(*) AS count FROM \`hackwestern2018.chicago_crime.crime\` WHERE latitude>=${latMin} AND latitude<=${latMax} AND longitude>=${lonMin} AND longitude<=${lonMax} AND date BETWEEN \"2017-11-25\" AND \"2018-11-25\"`;
 
         bigquery.createQueryStream(sqlQuery)
-            .on('error', console.error)
+            .on('error', function (err) {
+                console.error(err);
+                console.error(coord);
+            })
             .on('data', function (row) {
                 output.push(row.count);
-                console.log(row.count);
             })
             .on('end', function () {
-                res.json({crimes: output})
+                count -= 1;
+                if(count === 0) {
+                    res.json({crimes: output});
+                }
             });
     });
 

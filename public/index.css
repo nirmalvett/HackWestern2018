@@ -2,8 +2,7 @@
     display:inline-block;
     min-width:28px;
     min-height:28px;
-    background-position:0px;
-    background-image: url("../img/arrows.png");
+    background-position:0;
     position:relative;
     top:8px;
 }
@@ -143,7 +142,6 @@
 .directions li span.rightExit  {
     background-position:-476px;
 }
-
 .directions li span.ferry  {
     background-position:-1316px;
 }
