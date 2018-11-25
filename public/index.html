@@ -1,15 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
-    <!--
-      manifest.json provides metadata used when your web app is added to the
-      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
 
     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.0/mapsjs-ui.css?dp-version=1542186754" />
@@ -17,6 +11,8 @@
     <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-service.js"></script>
     <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-ui.js"></script>
     <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Safe Map</title>
 
 </head>
 <body>
@@ -43,10 +39,44 @@
 
         router.calculateRoute(
             routeRequestParams,
-            onSuccess,
-            onError
+            onSucc,
+            onErr
         );
     }
+
+    function onSucc (result) {
+        console.log(getCrimePoints(result));
+        onSuccess(result);
+    }
+
+    function onErr (error) {
+        onError(error);
+    }
+
+    function getCrimePoints (result) {
+        let route = result.response.route[0];
+        let points = [];
+        route.shape.forEach(function(point) {
+            let parts = point.split(',');
+            points.push({latitude: parts[0], longitude: parts[1]});
+        });
+
+        console.log(points);
+        $.ajax({
+            url: 'http://127.0.0.1:5000/api/nearbyCrimes',
+            type: 'post',
+            data: {points},
+            success: function(result) {
+                console.log(result);
+                return result;
+            },
+            error: function(err) {
+                console.error(err);
+                return [];
+            }
+        });
+    }
+
     /**
      * This function will be called once the Routing REST API provides a response
      * @param  {Object} result          A JSONP object representing the calculated route

@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+let bodyParser     =        require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const bq = require('@google-cloud/bigquery');
 
@@ -14,7 +17,7 @@ app.get('/', (req, res) => {
      req format: {"coords": [{"latitude": 5.12312, "longitude": 5.432532}, {"latitude": 3.2135132, "longitude": 2.132145}]}
      res format: {"crimes": [1, 3]}
  */
-app.get('/api/nearbyCrimes', async (req, res) => {
+app.post('/api/nearbyCrimes', (req, res) => {
 
     const projectId = "hackwestern2018";
     const bigquery = new bq.BigQuery({
@@ -23,11 +26,10 @@ app.get('/api/nearbyCrimes', async (req, res) => {
     });
 
     const output = [];
-    const chicagoLat = 41.8781;
-    const chicagoLon = -87.6298;
-    req.coords = [{latitude: chicagoLat, longitude: chicagoLon}];
+    console.log(req.body);
 
-    await req.coords.forEach(async coord => {
+
+    req.coords.forEach(coord => {
         if (!coord.latitude || isNaN(coord.latitude)) {
             res.status(400);
             res.send("Bad latitude coordinate");
