@@ -27,8 +27,6 @@
 <style type="text/css" src="index.css"> </style>
 <script  type="text/javascript" charset="UTF-8" >
 
-
-
     function calculateRouteFromAtoB (platform) {
         var router = platform.getRoutingService(),
             routeRequestParams = {
@@ -36,9 +34,11 @@
                 representation: 'display',
                 routeattributes : 'waypoints,summary,shape,legs',
                 maneuverattributes: 'direction,action',
-                waypoint0: '50.0522,8.2180', // Brandenburg Gate
-                waypoint1: '50.0923,8.5297',  // Friedrichstraße Railway Station
-                avoidareas: '50.1062,8.2811;50.0180,8.4253;50.0323,8.5497;50.0222,8.2280'
+                waypoint0: '52.5184443440238,13.383906494396967', // Brandenburg Gate
+                waypoint1: '52.51435421904425,13.396947378094524',  // Friedrichstraße Railway Station
+                avoidareas: '52.517100760,13.3905424488;52.5169701849,13.391808451!' +
+                    '52.51623131288022,13.389888672738778;52.51335487996589,13.395274548440511!' +
+                    '52.52006148651319,13.385160024545286;52.517760038213815,13.389707563495335'
             };
 
         router.calculateRoute(
@@ -100,7 +100,7 @@
         ppi: pixelRatio === 1 ? undefined : 320
     });
 
-    //Step 2: initialize a map - this map is centered over Berlin
+    //Step 2: initialize a map - this map is centered over Chicago
     var map = new H.Map(mapContainer,
         defaultLayers.normal.map,{
             center: {lat:41.8781, lng:-87.6298},
@@ -253,9 +253,6 @@
      * @param {Object} route  A route as received from the H.service.RoutingService
      */
     function addManueversToPanel(route){
-
-
-
         var nodeOL = document.createElement('ol'),
             i,
             j;
@@ -294,6 +291,7 @@
 
     // Now use the map as required...
     calculateRouteFromAtoB (platform);
+
 </script>
 </body>
 </html>
